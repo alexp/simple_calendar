@@ -36,6 +36,10 @@ module SimpleCalendar
       (start_date..end_date).to_a
     end
 
+    def draw_inline_calendar(selected_month, month, current_date, events, options, block)
+      
+    end
+
     # Renders the calendar table
     def draw_calendar(selected_month, month, current_date, events, options, block)
       tags = []
