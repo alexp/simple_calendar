@@ -12,7 +12,11 @@ module SimpleCalendar
       range          = build_range selected_month, options
       month_array    = range.each_slice(7).to_a
 
-      draw_calendar(selected_month, month_array, current_date, events, options, block)
+      if options[:params].has_key?(:inline) && options[:params][:inline] == true
+        draw_inline_calendar(selected_month, month_array, current_date, events, options, block)
+      else
+        draw_calendar(selected_month, month_array, current_date, events, options, block)
+      end
     end
 
     private
@@ -37,7 +41,54 @@ module SimpleCalendar
     end
 
     def draw_inline_calendar(selected_month, month, current_date, events, options, block)
-      
+      tags = []
+      today = Time.zone.now.to_date
+      tags << month_link(options[:prev_text], previous_month, options[:params], {:class => "previous-month"})
+      content_tag(:div, :class => "#{options[:class]} inline-calendar") do
+        day_names = I18n.t("date.abbr_day_names")
+        day_names = day_names.rotate((Date::DAYS_INTO_WEEK[options[:start_day]] + 1) % 7)
+        tags << content_tag(:div, day_names.collect { |name| content_tag :span, name, :class => (selected_month.month == today.month && today.strftime("%a") == name ? "current-day" : nil)}.join.html_safe)
+        tags << content_tag(:div, :'data-month'=>selected_month.month, :'data-year'=>selected_month.year) do
+
+          month.collect do |week|
+            content_tag(:span, :class => (week.include?(today) ? "current-week week" : "week")) do
+
+              week.collect do |date|
+                day_class = ["day"]
+                day_class << "today" if today == date
+                day_class << "not-current-month" if selected_month.month != date.month
+                day_class << "past" if today > date
+                day_class << "future" if today < date
+                day_class << "wday-#{date.wday.to_s}" # <- to enable different styles for weekend, etc
+
+                cur_events = day_events(date, events, options[:time_selector])
+
+                day_class << (cur_events.any? ? "events" : "no-events")
+
+                content_tag(:span, :class => day_class.join(" "), :'data-date-iso'=>date.to_s, 'data-date'=>date.to_s.gsub('-', '/')) do
+                  content_tag(:span) do
+                    spans = []
+                    concat content_tag(:span, date.day.to_s, :class=>"day_number")
+
+                    if cur_events.empty? && options[:empty_date]
+                      concat options[:empty_date].call(date)
+                    else
+                      spans << cur_events.collect{ |event| block.call(event) }
+                    end
+
+                    spans.join.html_safe
+                  end #content_tag :div
+                end #content_tag :td
+
+              end.join.html_safe
+            end #content_tag :tr
+
+          end.join.html_safe
+        end #content_tag :tbody
+
+        tags << month_link(options[:next_text], next_month, options[:params], {:class => "next-month"})
+        tags.join.html_safe
+      end #content_tag :table
     end
 
     # Renders the calendar table
