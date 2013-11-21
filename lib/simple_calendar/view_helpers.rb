@@ -55,7 +55,7 @@ module SimpleCalendar
       next_month = selected_month.advance :months => 1
 
       tags << content_tag(:div, :class => "month-name") do 
-        "#{I18n.t("date.month_names")[selected_month.month]} #{selected_month.year}"
+        content_tag(:a, "#{I18n.t("date.month_names")[selected_month.month]} #{selected_month.year}", :href=> "/performances/search?month=#{selected_month.month.to_i}")
       end
 
       tags << month_link(options[:prev_text], previous_month, options[:params], {:class => "previous-month"})
