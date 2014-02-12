@@ -85,7 +85,7 @@ module SimpleCalendar
 
                 content_tag(:span, :class => day_class.join(" "), :'data-date-iso'=>date.to_s, 'data-date'=>date.to_s.gsub('-', '/')) do
                     spans = []
-                    concat content_tag(:a, date.day.to_s, :href=>"/performances/search?year=#{(params[:year].blank?) ? date.year.to_s : params[:year]}&month=#{(params[:month].blank?) ? date.month.to_s : params[:month] }&city=#{params[:city]}&title=#{params[:title]}&day=#{date.day.to_s}", :class=>"day_number")
+                    concat content_tag(:a, date.day.to_s, :href=>"/repertuary/szukaj?year=#{(params[:year].blank?) ? date.year.to_s : params[:year]}&month=#{(params[:month].blank?) ? date.month.to_s : params[:month] }&city=#{params[:city]}&title=#{params[:title]}&day=#{date.day.to_s}", :class=>"day_number")
 
                     if cur_events.empty? && options[:empty_date]
                       concat options[:empty_date].call(date)
